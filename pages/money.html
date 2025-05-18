@@ -270,12 +270,12 @@
                 loadingBar.style.width = '0%';
                     let progress = 0;
                     const interval = setInterval(() => {
-                        progress += 10;
+                        progress += 5;
                         loadingBar.style.width = `${progress}%`;
                         if (progress >= 100) {
                             clearInterval(interval);
                             loadingContainer.style.display = 'none';
-                            applyMessage.textContent = '申請已提交成功！';
+                            applyMessage.textContent = '投資成功！';
                             if (itemType == "type1") balance += 900;
                             else if (itemType == "type2") balance += 200;
                             else if (itemType == "type3") balance += 1200;
@@ -295,7 +295,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ "deposit", balance }),
+                    body: JSON.stringify({ type:"deposit", amount: balance }),
                 });
                 alert("可以了");
             });
