@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATM 介面</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f8ff; /* 淡藍色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .atm-container {
+            background-color: #e0f2f7; /* 淺藍色容器 */
+            border: 2px solid #b0bec5;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            width: 400px; /* 固定寬度 */
+        }
+
+        .screen {
+            background-color: #fff;
+            border: 1px solid #cfd8dc;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .screen h1, .screen h2 {
+            color: #0277bd; /* 深藍色標題 */
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        #card-insertion button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background-color: #4fc3f7; /* 亮藍色按鈕 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #card-insertion button:hover {
+            background-color: #29b6f6;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .menu-buttons button {
+            padding: 18px 35px;
+            font-size: 18px;
+            border: 1px solid #81d4fa;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #e1f5fe; /* 極淺藍色按鈕 */
+            color: #0277bd;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .menu-buttons button:hover {
+            background-color: #b3e5fc;
+            color: #01579b;
+        }
+
+        #display-area {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        #balance-display {
+            font-size: 1.2em;
+            color: #1976d2; /* 藍色餘額文字 */
+            font-weight: bold;
+        }
+
+        #input-area label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #0277bd;
+        }
+
+        #input-area input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #b0bec5;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+
+        #input-area button {
+            padding: 15px 30px;
+            background-color: #1e88e5; /* 深藍色確認按鈕 */
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+
+        #input-area button:hover {
+            background-color: #1565c0;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .message.success {
+            color: green;
+        }
+
+        .message.error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="atm-container">
+        <div class="screen">
+            <h1 id="screen-title">歡迎使用 WBank ATM</h1>
+            <div id="card-insertion" style="display: block;">
+                <button id="insert-card-button">插入卡片</button>
+                <p id="card-message" class="message"></p>
+            </div>
+            <div id="main-menu" style="display: none;">
+                <h2>請選擇操作</h2>
+                <div class="menu-buttons">
+                    <button id="balance-button">查詢餘額</button>
+                    <button id="deposit-button">存款</button>
+                    <button id="withdraw-button">提款</button>
+                </div>
+            </div>
+            <div id="display-area" style="display: none;">
+                <p id="balance-display">餘額：<span id="current-balance"></span> 元</p>
+                <div id="input-area" style="display: none;">
+                    <label for="amount">金額：</label>
+                    <input type="number" id="amount" min="0">
+                    <button id="confirm-button">確認</button>
+                    <p id="message" class="message"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const screenTitle = document.getElementById('screen-title');
+            const cardInsertionDiv = document.getElementById('card-insertion');
+            const insertCardButton = document.getElementById('insert-card-button');
+            const cardMessage = document.getElementById('card-message');
+            const mainMenuDiv = document.getElementById('main-menu');
+            const balanceButton = document.getElementById('balance-button');
+            const depositButton = document.getElementById('deposit-button');
+            const withdrawButton = document.getElementById('withdraw-button');
+            const displayArea = document.getElementById('display-area');
+            const balanceDisplay = document.getElementById('balance-display');
+            const currentBalanceSpan = document.getElementById('current-balance');
+            const inputArea = document.getElementById('input-area');
+            const amountInput = document.getElementById('amount');
+            const confirmButton = document.getElementById('confirm-button');
+            const messageDisplay = document.getElementById('message');
+
+            let currentAction = null;
+            let balance = null; // 初始餘額設為 null，等待讀取
+
+            // 模擬讀取卡片資訊和餘額 (Flask 後端應處理此邏輯)
+            function simulateReadCard() {
+                return fetch('/api/card', { // Flask 後端路由範例
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && typeof data.balance !== 'undefined') {
+                        balance = data.balance;
+                        currentBalanceSpan.textContent = balance;
+                        cardInsertionDiv.style.display = 'none';
+                        mainMenuDiv.style.display = 'block';
+                    } else {
+                        cardMessage.textContent = '讀取卡片失敗。';
+                        cardMessage.className = 'message error';
+                    }
+                })
+                .catch(error => {
+                    console.error('讀取卡片錯誤:', error);
+                    cardMessage.textContent = '讀取卡片時發生錯誤。';
+                    cardMessage.className = 'message error';
+                });
+            }
+
+            function updateBalanceDisplay() {
+                currentBalanceSpan.textContent = balance !== null ? balance : 'N/A';
+            }
+
+            function showMessage(text, type = '') {
+                messageDisplay.textContent = text;
+                messageDisplay.className = `message ${type}`;
+                setTimeout(() => {
+                    messageDisplay.textContent = '';
+                    messageDisplay.className = 'message';
+                }, 3000);
+            }
+
+            function handleTransaction(type, amount) {
+                if (balance === null) {
+                    showMessage('請先插入卡片。', 'error');
+                    return Promise.reject('No card inserted');
+                }
+                return fetch(`/api/transaction`, { // Flask 後端路由範例
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ type, amount, currentBalance: balance }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    balance = data.newBalance;
+                    updateBalanceDisplay();
+                    showMessage(data.message, 'success');
+                })
+                .catch(error => {
+                    console.error('交易錯誤:', error);
+                    showMessage('交易失敗，請稍後再試。', 'error');
+                });
+            }
+
+            insertCardButton.addEventListener('click', () => {
+                cardMessage.textContent = '讀取卡片中...';
+                cardMessage.className = 'message';
+                simulateReadCard();
+            });
+
+            balanceButton.addEventListener('click', () => {
+                if (balance === null) {
+                    showMessage('請先插入卡片。', 'error');
+                    return;
+                }
+                screenTitle.textContent = '查詢餘額';
+                mainMenuDiv.style.display = 'none';
+                displayArea.style.display = 'block';
+                balanceDisplay.style.display = 'block';
+                inputArea.style.display = 'none';
+                updateBalanceDisplay();
+                currentAction = 'balance';
+            });
+
+            depositButton.addEventListener('click', () => {
+                if (balance === null) {
+                    showMessage('請先插入卡片。', 'error');
+                    return;
+                }
+                screenTitle.textContent = '存款';
+                mainMenuDiv.style.display = 'none';
+                displayArea.style.display = 'block';
+                balanceDisplay.style.display = 'none';
+                inputArea.style.display = 'block';
+                amountInput.value = '';
+                currentAction = 'deposit';
+            });
+
+            withdrawButton.addEventListener('click', () => {
+                if (balance === null) {
+                    showMessage('請先插入卡片。', 'error');
+                    return;
+                }
+                screenTitle.textContent = '提款';
+                mainMenuDiv.style.display = 'none';
+                displayArea.style.display = 'block';
+                balanceDisplay.style.display = 'none';
+                inputArea.style.display = 'block';
+                amountInput.value = '';
+                currentAction = 'withdraw';
+            });
+
+            confirmButton.addEventListener('click', () => {
+                if (!currentAction) return;
+
+                const amount = parseFloat(amountInput.value);
+
+                if (isNaN(amount) || amount <= 0) {
+                    showMessage('請輸入有效的金額。', 'error');
+                    return;
+                }
+
+                if (currentAction === 'deposit') {
+                    handleTransaction('deposit', amount).then(() => {
+                        displayArea.style.display = 'none';
+                        mainMenuDiv.style.display = 'block';
+                        screenTitle.textContent = '請選擇操作';
+                    });
+                } else if (currentAction === 'withdraw') {
+                    if (amount > balance) {
+                        showMessage('餘額不足。', 'error');
+                        return;
+                    }
+                    handleTransaction('withdraw', amount).then(() => {
+                        displayArea.style.display = 'none';
+                        mainMenuDiv.style.display = 'block';
+                        screenTitle.textContent = '請選擇操作';
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
