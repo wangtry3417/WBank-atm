@@ -25,7 +25,7 @@ def transaction():
         fp.close()
     if type == "withdraw":
         data["password"] = data["loginPw"]
-        data["cardNumber"] = hashlib.sha256(f"{data["accnumber"]}->{data["password"]}".encode("utf-8")).hexdigest()
+        data["cardNumber"] = hashlib.sha256(f"{data['accnumber']}->{data['password']}".encode("utf-8")).hexdigest()
         data["accessKey"] = "12309"
         data["reviewer"] = "wbank"
         data["amount"] = str(amount)
@@ -35,7 +35,7 @@ def transaction():
         return jsonify(newBalance=data["balance"], message=resp.json()["message"])
     elif type == "deposit":
         data["password"] = data["loginPw"]
-        data["cardNumber"] = hashlib.sha256(f"{data["accnumber"]}->{data["password"]}".encode("utf-8")).hexdigest()
+        data["cardNumber"] = hashlib.sha256(f"{data['accnumber']}->{data['password']}".encode("utf-8")).hexdigest()
         resp = requests.get(url="https://wtechhk.com/wbank/hash/transfer", headers={"user":"wbank", "reviewer":data["loginUser"], "amount": str(amount)})
         if resp.status_code != 200: return jsonify(msg="Error")
         res = requests.get(url="https://wtechhk.com/wbank/card/action", headers={"cardNumber": data["cardNumber"], "password": data["password"]})
