@@ -17,7 +17,7 @@ def wpay_payment():
   with open("data.json", "r") as fp:
     data = json.load(fp)
     data["password"] = data["loginPw"]
-    data["cardNumber"] = hashlib.sha256(f"{data["accnumber"]}->{data["password"]}".encode("utf-8")).hexdigest()
+    data["cardNumber"] = hashlib.sha256(f"{data['accnumber']}->{data['password']}".encode("utf-8")).hexdigest()
     data["accessKey"] = "0988"
     data["reviewer"] = "boc.hk"
     data["amount"] = "1000"
