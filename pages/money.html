@@ -173,6 +173,28 @@
         #apply-money-button:hover {
             background-color: #0056b3;
         }
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .menu-buttons button {
+            padding: 18px 35px;
+            font-size: 18px;
+            border: 1px solid #81d4fa;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #e1f5fe; /* 極淺藍色按鈕 */
+            color: #0277bd;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .menu-buttons button:hover {
+            background-color: #b3e5fc;
+            color: #01579b;
+        }
     </style>
 </head>
 <body>
@@ -180,6 +202,7 @@
         <div class="username">使用者名稱：<span id="username">{{ user }}</span></div>
         <button class="sidebar-button active" data-section="home">主頁</button>
         <button class="sidebar-button" data-section="apply">投資</button>
+        <button class="sidebar-button" data-section="sell">出售物品</button>
         <button class="sidebar-button" data-section="settings">出金</button>
     </div>
     <div class="content">
@@ -215,6 +238,27 @@
 
                 <div id="apply-message"></div>
             </form>
+        </div>
+
+        <div id="sell" class="section">
+            <h2>出售物品</h2>
+            <div class="menu-buttons">
+                    <button id="p1-button">
+                        產品名稱： <span id="p1-name"></span>
+                        產品價格： <span id="p1-price"></span>
+                        按此購買
+                    </button>
+                    <button id="p2-button">
+                        產品名稱： <span id="p2-name"></span>
+                        產品價格： <span id="p2-price"></span>
+                        按此購買
+                    </button>
+                    <button id="p3-button">
+                        產品名稱： <span id="p3-name"></span>
+                        產品價格： <span id="p3-price"></span>
+                        按此購買
+                    </button>
+            </div>
         </div>
 
         <div id="settings" class="section">
@@ -299,6 +343,42 @@
                 });
                 alert("可以了");
             });
+            // Random List for product-sell
+            let products = [
+            { productName: '半島酒店總統套房', productPrice: 34500 },
+            { productName: 'Level3-CD', productPrice: 580 },
+            { productName: 'Nelson內褲', productPrice: 12 },
+            { productName: '輝達Nvida', productPrice: 9 },
+            { productName: 'Intel', productPrice: 534 }
+            ];
+             // Fisher-Yates 洗牌算法
+             function shuffle(array) {
+                let currentIndex = array.length,  randomIndex;
+
+                while (currentIndex != 0) {
+                   randomIndex = Math.floor(Math.random() * currentIndex);
+                   currentIndex--;
+                   [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+                 }
+
+                 return array;
+                }
+
+                const shuffledItems = shuffle(products);
+
+                // 將前三個元素放入按鈕中
+                for (let i = 0; i < Math.min(shuffledItems.length, 3); i++) {
+                   const item = shuffledItems[i];
+                   const buttonId = `p${i + 1}-button`;
+                   const nameSpanId = `p${i + 1}-name`;
+                   const priceSpanId = `p${i + 1}-price`;
+                    document.getElementById(buttonId).addEventListener("click", ()=> {
+                        balance += item.productPrice;
+                        alert("你成功賣出 "+item.productName+" , 賺了 " + item.productPrice)
+                    });
+                    document.getElementById(nameSpanId).textContent = item.name;
+                    document.getElementById(priceSpanId).textContent = item.price;
+                }
         });
     </script>
 </body>
