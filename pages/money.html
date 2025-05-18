@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            display: flex;
+            background-color: #f4f4f4; /* 預設淺灰色背景 */
+            color: #333; /* 預設深色文字 */
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.dark-mode {
+            background-color: #333; /* 深色背景 */
+            color: #f4f4f4; /* 淺色文字 */
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #ddd;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            border-right: 1px solid #ccc;
+            transition: background-color 0.3s ease, border-right-color 0.3s ease;
+        }
+
+        body.dark-mode .sidebar {
+            background-color: #555;
+            border-right-color: #777;
+        }
+
+        .sidebar button {
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: none;
+            background-color: #eee;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            width: 100%;
+            text-align: left;
+        }
+
+        body.dark-mode .sidebar button {
+            background-color: #777;
+            color: #eee;
+        }
+
+        .sidebar button.active {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .toggle-button {
+            background-color: transparent;
+            border: 1px solid #ccc;
+            color: #333;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        body.dark-mode .toggle-button {
+            border-color: #777;
+            color: #eee;
+        }
+
+        .toggle-button:hover {
+            background-color: #ddd;
+        }
+
+        body.dark-mode .toggle-button:hover {
+            background-color: #666;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        #apply-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        #apply-form input[type="text"],
+        #apply-form select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        #apply-button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #apply-button:hover {
+            background-color: #0056b3;
+        }
+
+        .loading-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            margin-top: 15px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background-color: green;
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #apply-message {
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .dark-mode #apply-message {
+            color: #eee;
+        }
+        #apply-money-button {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        #apply-money-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="username">使用者名稱：<span id="username">User123</span></div>
+        <button class="sidebar-button active" data-section="home">主頁</button>
+        <button class="sidebar-button" data-section="apply">申請東西</button>
+        <button class="sidebar-button" data-section="settings">設定</button>
+    </div>
+    <div class="content">
+        <div class="header">
+            <h1>Dashboard</h1>
+            <button id="toggle-dark-mode" class="toggle-button">切換黑白</button>
+        </div>
+
+        <div id="home" class="section active">
+            <h2>主頁</h2>
+            <p>你好： {{ user }}</p>
+            <p>你的餘額: <span id="bal"></span> </p>
+        </div>
+
+        <div id="apply" class="section">
+            <h2>快速投資</h2>
+            <form id="apply-form">
+                <label for="itemName">你想要多少wcoins：</label>
+                <input type="text" id="itemName" name="itemName" required>
+
+                <label for="itemType">申請類型：</label>
+                <select id="itemType" name="itemType">
+                    <option value="type1">投資黃金</option>
+                    <option value="type2">投資經發第二基金</option>
+                    <option value="type3">投資Bitcoin</option>
+                </select>
+
+                <button type="button" id="apply-button">提交申請</button>
+
+                <div class="loading-bar-container" id="loading-container">
+                    <div class="loading-bar" id="loading-bar"></div>
+                </div>
+
+                <div id="apply-message"></div>
+            </form>
+        </div>
+
+        <div id="settings" class="section">
+            <h2>出金</h2>
+            <button type="button" id="apply-money-button">提交申請</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const toggleDarkModeButton = document.getElementById('toggle-dark-mode');
+            const sidebarButtons = document.querySelectorAll('.sidebar-button');
+            const sections = document.querySelectorAll('.section');
+            const applyForm = document.getElementById('apply-form');
+            const applyButton = document.getElementById('apply-button');
+            const applyMoneyButton = document.getElementById('apply-money-button');
+            const loadingContainer = document.getElementById('loading-container');
+            const loadingBar = document.getElementById('loading-bar');
+            const applyMessage = document.getElementById('apply-message');
+            let bal = document.getElementById('bal');
+            let balance = 0;
+
+            // 切換黑白模式
+            toggleDarkModeButton.addEventListener('click', () => {
+                body.classList.toggle('dark-mode');
+            });
+
+            // 切換顯示內容區域
+            sidebarButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sectionId = button.dataset.section;
+                    sections.forEach(section => section.classList.remove('active'));
+                    sidebarButtons.forEach(btn => btn.classList.remove('active'));
+                    document.getElementById(sectionId).classList.add('active');
+                    button.classList.add('active');
+                });
+            });
+
+            // 模擬申請流程和載入條
+            applyButton.addEventListener('click', () => {
+                const itemName = applyForm.elements.itemName.value;
+                const itemType = applyForm.elements.itemType.value;
+
+                if (!itemName) {
+                    applyMessage.textContent = '請輸入申請項目。';
+                    applyMessage.style.color = 'red';
+                    return;
+                }
+
+                applyMessage.textContent = '';
+                loadingContainer.style.display = 'block';
+                loadingBar.style.width = '0%';
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += 10;
+                        loadingBar.style.width = `${progress}%`;
+                        if (progress >= 100) {
+                            clearInterval(interval);
+                            loadingContainer.style.display = 'none';
+                            applyMessage.textContent = '申請已提交成功！';
+                            if (itemType == "type1") balance += 900;
+                            else if (itemType == "type2") balance += 200;
+                            else if (itemType == "type3") balance += 1200;
+                            bal.innerHTML = balance;
+                            applyMessage.style.color = 'green';
+                            applyForm.reset();
+                        }
+                    }, 300); // 模擬載入步驟
+            });
+            applyMoneyButton.addEventListener('click', () => {
+                if (balance == 0) {
+                    alert("沒有餘額");
+                    return;
+                }
+                fetch(`/api/transaction`, { // Flask 後端路由範例
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ "deposit", balance }),
+                });
+                alert("可以了");
+            });
+        });
+    </script>
+</body>
+</html>
