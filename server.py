@@ -31,6 +31,7 @@ def transaction():
         data["amount"] = str(amount)
         resp = requests.patch(url="https://wtechhk.com/wbank/card/action", json=data)
         if resp.status_code != 200: return jsonify(newBalance=data["balance"], message="請求失敗", error=True)
+        write_data()
         return jsonify(newBalance=data["balance"], message=resp.json()["message"])
     elif type == "deposit":
         data["password"] = data["loginPw"]
@@ -39,7 +40,16 @@ def transaction():
         if resp.status_code != 200: return jsonify(msg="Error")
         res = requests.get(url="https://wtechhk.com/wbank/card/action", headers={"cardNumber": data["cardNumber"], "password": data["password"]})
         if resp.status_code != 200: return jsonify(msg=str(res.content.decode("utf-8")))
+        write_data()
         return jsonify(balance=res.json()["balance"])
     return jsonify(msg="請求方式不支援", code=400)
+
+@app.route("/make/money")
+def make_money_page():
+    write_data()
+    with open("data.json", "r") as fp:
+        data = json.load(fp)
+        user = data["loginUser"]
+        return render_template("money.html", user=user)
 
 app.run(host="0.0.0.0")
