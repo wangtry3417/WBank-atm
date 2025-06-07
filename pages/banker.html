@@ -351,7 +351,7 @@
             }
             
             let bankName = bank === 'wbank' ? 'WBank 網上銀行' : '其他銀行';
-            fetch ("/api/transaction", { body: JSON.stringify({ type: "withdraw", amount: amount }})});
+            fetch ("/api/transaction", { body: JSON.stringify({ type: "withdraw", amount: amount })});
             addHistory(`成功從 ${bankName} 帳號 ${account} 入帳 ${amount} 元`);
             // 模擬入帳處理
             balance += amount;
