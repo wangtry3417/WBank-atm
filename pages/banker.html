@@ -168,7 +168,6 @@
                 <div class="bank-form">
                     <select id="bank-select">
                         <option value="wbank">WBank 泓財銀行</option>
-                        <option value="other">其他銀行</option>
                     </select>
                     <input type="number" id="deposit-amount" placeholder="入帳金額" min="100" max="100000">
                     <input type="text" id="account-number" placeholder="銀行帳號">
@@ -356,7 +355,7 @@
             updateBalance();
             
             let bankName = bank === 'wbank' ? 'WBank 網上銀行' : '其他銀行';
-            fetch ("/api/transaction", { body: JSON.stringify({ type: "withdraw", amount: amount });
+            fetch ("/api/transaction", { body: JSON.stringify({ type: "withdraw", amount: amount }})});
             addHistory(`成功從 ${bankName} 帳號 ${account} 入帳 ${amount} 元`);
             
             // 清空表單
