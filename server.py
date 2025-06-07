@@ -52,4 +52,8 @@ def make_money_page():
         user = data["loginUser"]
         return render_template("money.html", user=user)
 
+@app.route("/play")
+def play_game():
+    return render_template("banker.html")
+
 app.run(host="0.0.0.0")
