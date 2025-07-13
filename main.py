@@ -6,7 +6,7 @@ cardNumber = "0107a5de48a35bcc6d03535d00478e29e089a92f1104ac5d40efb5bdfb2435d4"
 def write_data():
   auth_url = "https://wtechhk.com/wbank/v2/csrftoken"
   token = get(url=auth_url, headers={"Authorization": "Bearer wtech666"}).json()["token"]
-  r = get(url="https://wtechhk.com/wbank/auth/v1/session", data={"user": "benchan609", "pw": "Chan1234#", "url": "/wbank/card/action", "csrf_token": token})
+  r = get(url="https://wtechhk.com/wbank/auth/v1/session", data={"user": "wangtry", "pw": "Chan1234!", "url": "/wbank/card/action", "csrf_token": token})
   if r.status_code != 200: print(r)
   data = json.dumps(r.json(), indent=4)
   with open("data.json", "w") as w:
@@ -18,8 +18,8 @@ def wpay_payment():
     data = json.load(fp)
     data["password"] = data["loginPw"]
     data["cardNumber"] = hashlib.sha256(f"{data['accnumber']}->{data['password']}".encode("utf-8")).hexdigest()
-    data["accessKey"] = "0988"
-    data["reviewer"] = "boc.hk"
+    data["accessKey"] = "0978"
+    data["reviewer"] = "wbank"
     data["amount"] = "1000"
     pmReq = patch(url="https://wtechhk.com/wbank/card/action", json=data)
     if pmReq.status_code != 200: print(pmReq.json())
