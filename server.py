@@ -60,4 +60,8 @@ def make_money_page():
 def play_game():
     return render_template("banker.html")
 
+@app.route("/wnet")
+def wnet_web():
+    return render_template("wnet.html")
+
 app.run(host="0.0.0.0")
