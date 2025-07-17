@@ -410,7 +410,7 @@
                     <h3 class="plan-name">基本方案</h3>
                     <div class="plan-price">$128<span>/月</span></div>
                     <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> 100M 光纖網絡</li>
+                        <li><i class="fas fa-check"></i> 95M 光纖網絡</li>
                         <li><i class="fas fa-check"></i> 無限數據用量</li>
                         <li><i class="fas fa-check"></i> 免費WiFi路由器</li>
                         <li><i class="fas fa-check"></i> 基本技術支援</li>
@@ -440,6 +440,7 @@
                         <li><i class="fas fa-check"></i> 24/7 VIP技術支援</li>
                         <li><i class="fas fa-check"></i> 高級網絡安全套件</li>
                         <li><i class="fas fa-check"></i> 免費雲端儲存空間</li>
+                         <li><i class="fas fa-check"></i> 免費送一部主機</li>
                     </ul>
                     <button class="btn btn-outline" onclick="openModal(298)">立即申請</button>
                 </div>
@@ -557,7 +558,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
+                if (data.code == 200) {
                     alert(`支付成功！感謝您選擇${bankName}完成付款。我們將在24小時內與您聯繫安排安裝。`);
                     closeModal();
                     // 重置表單
