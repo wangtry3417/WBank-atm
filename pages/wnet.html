@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泓網電信 | 極速網絡服務</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --primary-dark: #3a56cc;
+            --secondary: #00c8ff;
+            --dark: #1a1e2e;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --border-radius: 12px;
+            --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background-color: #f5f7ff;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 導航欄 */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--box-shadow);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            color: var(--secondary);
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--secondary);
+        }
+
+        /* 英雄區域 */
+        .hero {
+            background: linear-gradient(rgba(26, 30, 46, 0.8), rgba(26, 30, 46, 0.8)), 
+                        url('https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 5rem 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        /* 服務方案 */
+        .plans {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .plan-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .plan-card.popular::before {
+            content: "熱門推薦";
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--secondary);
+            color: white;
+            padding: 0.3rem 2rem;
+            transform: rotate(45deg);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+
+        .plan-features {
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            list-style: none;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .plan-features li i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 支付模態框 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+        }
+
+        .bank-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .bank-option {
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .bank-option:hover {
+            border-color: var(--primary);
+        }
+
+        .bank-option.selected {
+            border-color: var(--primary);
+            background: rgba(74, 107, 255, 0.1);
+        }
+
+        .bank-option i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .bank-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            nav {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .plan-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .bank-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <i class="fas fa-satellite-dish"></i>
+                    <span>泓網電信</span>
+                </div>
+                <div class="nav-links">
+                    <a href="#plans">資費方案</a>
+                    <a href="#features">服務特色</a>
+                    <a href="#contact">聯絡我們</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>極速光纖網絡，連接無限可能</h1>
+            <p>星辰電信提供全港最穩定的1000M光纖網絡服務，無縫覆蓋全港各區，為您帶來前所未有的上網體驗。</p>
+            <a href="#plans" class="btn">查看資費方案</a>
+        </div>
+    </section>
+
+    <section id="plans" class="plans">
+        <div class="container">
+            <div class="section-title">
+                <h2>選擇最適合您的方案</h2>
+                <p>我們提供多種資費方案，滿足不同用戶的需求。所有方案均包含24/7技術支援和免費安裝服務。</p>
+            </div>
+            <div class="plan-cards">
+                <div class="plan-card">
+                    <h3 class="plan-name">基本方案</h3>
+                    <div class="plan-price">$128<span>/月</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 100M 光纖網絡</li>
+                        <li><i class="fas fa-check"></i> 無限數據用量</li>
+                        <li><i class="fas fa-check"></i> 免費WiFi路由器</li>
+                        <li><i class="fas fa-check"></i> 基本技術支援</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="openModal(128)">立即申請</button>
+                </div>
+                <div class="plan-card popular">
+                    <h3 class="plan-name">進階方案</h3>
+                    <div class="plan-price">$198<span>/月</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 500M 光纖網絡</li>
+                        <li><i class="fas fa-check"></i> 無限數據用量</li>
+                        <li><i class="fas fa-check"></i> 高級WiFi 6路由器</li>
+                        <li><i class="fas fa-check"></i> 優先技術支援</li>
+                        <li><i class="fas fa-check"></i> 免費網絡安全套件</li>
+                        <li><i class="fas fa-check"></i> 免費送一部主機</li>
+                    </ul>
+                    <button class="btn" onclick="openModal(198)">立即申請</button>
+                </div>
+                <div class="plan-card">
+                    <h3 class="plan-name">旗艦方案</h3>
+                    <div class="plan-price">$298<span>/月</span></div>
+                    <ul class="plan-features">
+                        <li><i class="fas fa-check"></i> 1000M 光纖網絡</li>
+                        <li><i class="fas fa-check"></i> 無限數據用量</li>
+                        <li><i class="fas fa-check"></i> 旗艦WiFi 6路由器</li>
+                        <li><i class="fas fa-check"></i> 24/7 VIP技術支援</li>
+                        <li><i class="fas fa-check"></i> 高級網絡安全套件</li>
+                        <li><i class="fas fa-check"></i> 免費雲端儲存空間</li>
+                    </ul>
+                    <button class="btn btn-outline" onclick="openModal(298)">立即申請</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 支付模態框 -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">支付訂金</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">電話號碼</label>
+                    <input type="tel" id="phone" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">安裝地址</label>
+                    <input type="text" id="address" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>選擇支付方式</label>
+                    <div class="bank-options">
+                        <div class="bank-option" onclick="selectBank('wbank')">
+                            <i class="fas fa-university"></i>
+                            <div>WBank</div>
+                        </div>
+                        <div class="bank-option" onclick="selectBank('hsbc')">
+                            <i class="fas fa-landmark"></i>
+                            <div>HSBC</div>
+                        </div>
+                        <div class="bank-option" onclick="selectBank('boc')">
+                            <i class="fas fa-piggy-bank"></i>
+                            <div>中銀</div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="selectedBank" value="">
+                <input type="hidden" id="planAmount" value="">
+                <button type="submit" class="btn">確認支付</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 當前選擇的銀行
+        let selectedBank = '';
+        // 當前選擇的方案金額
+        let currentAmount = 0;
+
+        // 打開支付模態框
+        function openModal(amount) {
+            currentAmount = amount;
+            document.getElementById('planAmount').value = amount;
+            document.getElementById('paymentModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 關閉模態框
+        function closeModal() {
+            document.getElementById('paymentModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 選擇銀行
+        function selectBank(bank) {
+            selectedBank = bank;
+            document.getElementById('selectedBank').value = bank;
+            
+            // 移除所有選中狀態
+            document.querySelectorAll('.bank-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 添加選中狀態到當前選擇的銀行
+            event.currentTarget.classList.add('selected');
+        }
+
+        // 處理表單提交
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const address = document.getElementById('address').value;
+            
+            if (!selectedBank) {
+                alert('請選擇支付銀行');
+                return;
+            }
+            
+            // 根據您提供的API進行支付
+            const bankName = selectedBank === 'wbank' ? 'WBank 網上銀行' : '其他銀行';
+            
+            fetch("/api/transaction", { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    type: "withdraw", 
+                    amount: currentAmount,
+                    bank: selectedBank,
+                    customer: {
+                        name,
+                        phone,
+                        address
+                    }
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`支付成功！感謝您選擇${bankName}完成付款。我們將在24小時內與您聯繫安排安裝。`);
+                    closeModal();
+                    // 重置表單
+                    document.getElementById('paymentForm').reset();
+                    document.querySelectorAll('.bank-option').forEach(option => {
+                        option.classList.remove('selected');
+                    });
+                } else {
+                    alert(`支付失敗: ${data.message || '未知錯誤'}`);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('支付過程中發生錯誤，請稍後再試');
+            });
+        });
+
+        // 點擊模態框外部關閉
+        document.getElementById('paymentModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
