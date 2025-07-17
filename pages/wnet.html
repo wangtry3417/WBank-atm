@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>泓網電信 | 極速網絡服務</title>
+    <title>泓網電信 | 極速流動網絡</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4a6bff;
-            --primary-dark: #3a56cc;
+            --primary: #6a11cb;
+            --primary-dark: #4a0ba3;
             --secondary: #00c8ff;
             --dark: #1a1e2e;
             --light: #f8f9fa;
@@ -28,10 +29,11 @@
         }
 
         body {
-            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            font-family: 'Noto Sans TC', 'Segoe UI', sans-serif;
             background-color: #f5f7ff;
             color: var(--dark);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
@@ -49,6 +51,7 @@
             top: 0;
             z-index: 100;
             box-shadow: var(--box-shadow);
+            animation: fadeInDown 0.8s ease;
         }
 
         nav {
@@ -67,6 +70,7 @@
         .logo i {
             color: var(--secondary);
             margin-right: 10px;
+            animation: pulse 2s infinite;
         }
 
         .nav-links {
@@ -79,10 +83,26 @@
             text-decoration: none;
             font-weight: 500;
             transition: var(--transition);
+            position: relative;
         }
 
         .nav-links a:hover {
             color: var(--secondary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
         }
 
         /* 英雄區域 */
@@ -94,17 +114,38 @@
             color: white;
             padding: 5rem 0;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(106, 17, 203, 0.6), rgba(0, 200, 255, 0.4));
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease;
         }
 
         .hero h1 {
             font-size: 3rem;
             margin-bottom: 1rem;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .hero p {
             font-size: 1.2rem;
             max-width: 700px;
             margin: 0 auto 2rem;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         /* 服務方案 */
@@ -115,6 +156,7 @@
         .section-title {
             text-align: center;
             margin-bottom: 3rem;
+            animation: fadeIn 1s ease;
         }
 
         .section-title h2 {
@@ -143,10 +185,25 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+            animation: fadeInUp 0.8s ease;
+            animation-fill-mode: backwards;
+        }
+
+        .plan-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .plan-card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .plan-card:nth-child(3) {
+            animation-delay: 0.6s;
         }
 
         .plan-card:hover {
             transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
         }
 
         .plan-card.popular::before {
@@ -216,6 +273,7 @@
         .btn:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.3);
         }
 
         .btn-outline {
@@ -285,6 +343,11 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
         }
 
         .form-group {
@@ -309,7 +372,7 @@
         .form-control:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
         }
 
         .bank-options {
@@ -330,17 +393,137 @@
 
         .bank-option:hover {
             border-color: var(--primary);
+            transform: translateY(-3px);
         }
 
         .bank-option.selected {
             border-color: var(--primary);
-            background: rgba(74, 107, 255, 0.1);
+            background: rgba(106, 17, 203, 0.1);
+            transform: translateY(-3px);
         }
 
         .bank-option i {
             font-size: 2rem;
             margin-bottom: 0.5rem;
             color: var(--primary);
+            transition: var(--transition);
+        }
+
+        .bank-option.selected i {
+            transform: scale(1.1);
+        }
+
+        /* eSIM 激活模態框 */
+        .esim-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+
+        .esim-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .esim-content {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 500px;
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            transform: translateY(20px);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .esim-modal.active .esim-content {
+            transform: translateY(0);
+        }
+
+        .esim-title {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .esim-qrcode {
+            width: 200px;
+            height: 200px;
+            margin: 1rem auto;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            animation: pulse 2s infinite;
+        }
+
+        .esim-steps {
+            text-align: left;
+            margin: 1.5rem 0;
+        }
+
+        .esim-steps li {
+            margin-bottom: 0.8rem;
+            list-style-type: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .esim-steps li i {
+            margin-right: 0.5rem;
+            color: var(--primary);
+        }
+
+        /* 動畫 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
         }
 
         /* 響應式設計 */
@@ -379,7 +562,7 @@
         <div class="container">
             <nav>
                 <div class="logo">
-                    <i class="fas fa-satellite-dish"></i>
+                    <i class="fas fa-sim-card"></i>
                     <span>泓網電信</span>
                 </div>
                 <div class="nav-links">
@@ -392,9 +575,9 @@
     </header>
 
     <section class="hero">
-        <div class="container">
-            <h1>極速光纖網絡，連接無限可能</h1>
-            <p>星辰電信提供全港最穩定的1000M光纖網絡服務，無縫覆蓋全港各區，為您帶來前所未有的上網體驗。</p>
+        <div class="hero-content container">
+            <h1>極速5G流動網絡，隨時隨地連接</h1>
+            <p>泓網電信提供全港覆蓋的5G網絡服務，無需實體SIM卡，eSIM即刻開通，享受無縫上網體驗。</p>
             <a href="#plans" class="btn">查看資費方案</a>
         </div>
     </section>
@@ -402,47 +585,46 @@
     <section id="plans" class="plans">
         <div class="container">
             <div class="section-title">
-                <h2>選擇最適合您的方案</h2>
-                <p>我們提供多種資費方案，滿足不同用戶的需求。所有方案均包含24/7技術支援和免費安裝服務。</p>
+                <h2>選擇最適合您的流動方案</h2>
+                <p>我們提供多種eSIM數據方案，滿足不同用戶的需求。所有方案均支持5G網絡，無需合約，隨時更換。</p>
             </div>
             <div class="plan-cards">
                 <div class="plan-card">
-                    <h3 class="plan-name">基本方案</h3>
-                    <div class="plan-price">$128<span>/月</span></div>
+                    <h3 class="plan-name">輕量方案</h3>
+                    <div class="plan-price">$88<span>/月</span></div>
                     <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> 95M 光纖網絡</li>
-                        <li><i class="fas fa-check"></i> 無限數據用量</li>
-                        <li><i class="fas fa-check"></i> 免費WiFi路由器</li>
-                        <li><i class="fas fa-check"></i> 基本技術支援</li>
+                        <li><i class="fas fa-check"></i> 10GB 5G高速數據</li>
+                        <li><i class="fas fa-check"></i> 超量後128Kbps無限</li>
+                        <li><i class="fas fa-check"></i> 免費eSIM即時開通</li>
+                        <li><i class="fas fa-check"></i> 無限本地通話</li>
                     </ul>
-                    <button class="btn btn-outline" onclick="openModal(128)">立即申請</button>
+                    <button class="btn btn-outline" onclick="openModal(88)">立即申請</button>
                 </div>
                 <div class="plan-card popular">
-                    <h3 class="plan-name">進階方案</h3>
-                    <div class="plan-price">$198<span>/月</span></div>
+                    <h3 class="plan-name">暢享方案</h3>
+                    <div class="plan-price">$158<span>/月</span></div>
                     <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> 500M 光纖網絡</li>
-                        <li><i class="fas fa-check"></i> 無限數據用量</li>
-                        <li><i class="fas fa-check"></i> 高級WiFi 6路由器</li>
-                        <li><i class="fas fa-check"></i> 優先技術支援</li>
-                        <li><i class="fas fa-check"></i> 免費網絡安全套件</li>
+                        <li><i class="fas fa-check"></i> 50GB 5G高速數據</li>
+                        <li><i class="fas fa-check"></i> 超量後1Mbps無限</li>
+                        <li><i class="fas fa-check"></i> 免費eSIM即時開通</li>
+                        <li><i class="fas fa-check"></i> 無限本地通話</li>
+                        <li><i class="fas fa-check"></i> 100分鐘國際通話</li>
                         <li><i class="fas fa-check"></i> 免費送一部主機</li>
                     </ul>
-                    <button class="btn" onclick="openModal(198)">立即申請</button>
+                    <button class="btn" onclick="openModal(158)">立即申請</button>
                 </div>
                 <div class="plan-card">
-                    <h3 class="plan-name">旗艦方案</h3>
-                    <div class="plan-price">$298<span>/月</span></div>
+                    <h3 class="plan-name">尊貴方案</h3>
+                    <div class="plan-price">$258<span>/月</span></div>
                     <ul class="plan-features">
-                        <li><i class="fas fa-check"></i> 1000M 光纖網絡</li>
-                        <li><i class="fas fa-check"></i> 無限數據用量</li>
-                        <li><i class="fas fa-check"></i> 旗艦WiFi 6路由器</li>
-                        <li><i class="fas fa-check"></i> 24/7 VIP技術支援</li>
-                        <li><i class="fas fa-check"></i> 高級網絡安全套件</li>
-                        <li><i class="fas fa-check"></i> 免費雲端儲存空間</li>
-                         <li><i class="fas fa-check"></i> 免費送一部主機</li>
+                        <li><i class="fas fa-check"></i> 無限5G高速數據</li>
+                        <li><i class="fas fa-check"></i> 優先網絡連接</li>
+                        <li><i class="fas fa-check"></i> 免費eSIM即時開通</li>
+                        <li><i class="fas fa-check"></i> 無限本地及國際通話</li>
+                        <li><i class="fas fa-check"></i> 全球100國漫遊數據</li>
+                        <li><i class="fas fa-check"></i> 免費送一部主機</li>
                     </ul>
-                    <button class="btn btn-outline" onclick="openModal(298)">立即申請</button>
+                    <button class="btn btn-outline" onclick="openModal(258)">立即申請</button>
                 </div>
             </div>
         </div>
@@ -465,8 +647,8 @@
                     <input type="tel" id="phone" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="address">安裝地址</label>
-                    <input type="text" id="address" class="form-control" required>
+                    <label for="email">電子郵件</label>
+                    <input type="email" id="email" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label>選擇支付方式</label>
@@ -492,6 +674,31 @@
         </div>
     </div>
 
+    <!-- eSIM 激活模態框 -->
+    <div id="esimModal" class="esim-modal">
+        <div class="esim-content">
+            <h3 class="esim-title">eSIM 激活成功!</h3>
+            <p>您的流動網絡服務已開通，請掃描以下QR碼激活eSIM</p>
+            
+            <div class="esim-qrcode">
+                <i class="fas fa-sim-card fa-4x" style="color: var(--primary);"></i>
+            </div>
+            
+            <div class="esim-steps">
+                <h4>激活步驟:</h4>
+                <ul>
+                    <li><i class="fas fa-mobile-alt"></i> 打開手機設置 > 行動網絡</li>
+                    <li><i class="fas fa-qrcode"></i> 選擇"添加eSIM"並掃描上方QR碼</li>
+                    <li><i class="fas fa-check-circle"></i> 按照提示完成設置</li>
+                    <li><i class="fas fa-wifi"></i> 開啟行動數據即可使用</li>
+                </ul>
+            </div>
+            
+            <p>如有任何問題，請聯繫我們的24/7客戶服務</p>
+            <button class="btn" onclick="closeEsimModal()">完成</button>
+        </div>
+    </div>
+
     <script>
         // 當前選擇的銀行
         let selectedBank = '';
@@ -509,6 +716,18 @@
         // 關閉模態框
         function closeModal() {
             document.getElementById('paymentModal').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 打開eSIM模態框
+        function openEsimModal() {
+            document.getElementById('esimModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 關閉eSIM模態框
+        function closeEsimModal() {
+            document.getElementById('esimModal').classList.remove('active');
             document.body.style.overflow = 'auto';
         }
 
@@ -532,7 +751,7 @@
             
             const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
-            const address = document.getElementById('address').value;
+            const email = document.getElementById('email').value;
             
             if (!selectedBank) {
                 alert('請選擇支付銀行');
@@ -552,20 +771,39 @@
                     customer: {
                         name,
                         phone,
-                        address
+                        email
                     }
                 })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.message == "Payment successfully") {
-                    alert(`支付成功！感謝您選擇${bankName}完成付款。我們將在24小時內與您聯繫安排安裝。`);
                     closeModal();
                     // 重置表單
                     document.getElementById('paymentForm').reset();
                     document.querySelectorAll('.bank-option').forEach(option => {
                         option.classList.remove('selected');
                     });
+                    
+                    // 顯示eSIM激活模態框
+                    setTimeout(() => {
+                        openEsimModal();
+                        
+                        // 模擬eSIM QR碼生成過程
+                        const qrCode = document.querySelector('.esim-qrcode');
+                        qrCode.innerHTML = '';
+                        
+                        // 創建動畫效果
+                        const loading = document.createElement('div');
+                        loading.innerHTML = '<i class="fas fa-spinner fa-spin fa-3x" style="color: var(--primary);"></i>';
+                        qrCode.appendChild(loading);
+                        
+                        // 模擬網絡請求延遲
+                        setTimeout(() => {
+                            loading.remove();
+                            qrCode.innerHTML = '<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ESIM-ACTIVATION-CODE-' + phone + '" alt="eSIM QR Code">';
+                        }, 2000);
+                    }, 500);
                 } else {
                     alert(`支付失敗: ${data.message || '未知錯誤'}`);
                 }
@@ -581,6 +819,31 @@
             if (e.target === this) {
                 closeModal();
             }
+        });
+
+        document.getElementById('esimModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEsimModal();
+            }
+        });
+
+        // 滾動動畫
+        document.addEventListener('DOMContentLoaded', function() {
+            const animateOnScroll = function() {
+                const elements = document.querySelectorAll('.plan-card, .section-title');
+                elements.forEach(element => {
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+                    
+                    if (elementPosition < windowHeight - 100) {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }
+                });
+            };
+            
+            window.addEventListener('scroll', animateOnScroll);
+            animateOnScroll(); // 初始檢查
         });
     </script>
 </body>
