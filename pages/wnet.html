@@ -558,7 +558,7 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.code == 200) {
+                if (data.message == "Payment successfully") {
                     alert(`支付成功！感謝您選擇${bankName}完成付款。我們將在24小時內與您聯繫安排安裝。`);
                     closeModal();
                     // 重置表單
