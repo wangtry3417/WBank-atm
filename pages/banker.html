@@ -199,10 +199,44 @@
         let gameInProgress = false;
         let countdownInterval = null;
         let countdown = 10;
+        let deck = [];
 
         // 初始化遊戲
         function initGame() {
             updateBalance();
+            initializeDeck();
+        }
+
+        // 初始化牌組
+        function initializeDeck() {
+            const suits = ['♥', '♦', '♠', '♣'];
+            const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            
+            deck = [];
+            for (let suit of suits) {
+                for (let value of values) {
+                    deck.push(suit + value);
+                }
+            }
+            
+            // 洗牌
+            shuffleDeck();
+        }
+
+        // Fisher-Yates洗牌算法
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        // 從牌組頂部發一張牌
+        function dealCard() {
+            if (deck.length < 6) {
+                initializeDeck(); // 如果牌不夠了，重新洗牌
+            }
+            return deck.pop();
         }
 
         // 選擇下注選項
@@ -256,28 +290,90 @@
             document.getElementById('player-hand').innerHTML = '';
             document.getElementById('banker-hand').innerHTML = '';
             
-            // 模擬發牌 (實際遊戲應使用隨機發牌邏輯)
-            const playerCards = ['♥K', '♦9'];
-            const bankerCards = ['♠A', '♣A'];
+            // 發牌 (根據百家樂規則)
+            const playerCards = [dealCard(), dealCard()];
+            const bankerCards = [dealCard(), dealCard()];
+            
+            // 根據百家樂規則決定是否需要第三張牌
+            const playerScore = calculateHandScore(playerCards);
+            const bankerScore = calculateHandScore(bankerCards);
+            
+            // 閒家是否需要第三張牌
+            let playerThirdCard = null;
+            if (playerScore <= 5) {
+                playerThirdCard = dealCard();
+                playerCards.push(playerThirdCard);
+            }
+            
+            // 莊家是否需要第三張牌 (根據複雜的百家樂規則)
+            let bankerThirdCard = null;
+            if (bankerScore <= 2) {
+                bankerThirdCard = dealCard();
+                bankerCards.push(bankerThirdCard);
+            } else if (bankerScore === 3 && (!playerThirdCard || getCardValue(playerThirdCard) !== 8)) {
+                bankerThirdCard = dealCard();
+                bankerCards.push(bankerThirdCard);
+            } else if (bankerScore === 4 && playerThirdCard && [2,3,4,5,6,7].includes(getCardValue(playerThirdCard))) {
+                bankerThirdCard = dealCard();
+                bankerCards.push(bankerThirdCard);
+            } else if (bankerScore === 5 && playerThirdCard && [4,5,6,7].includes(getCardValue(playerThirdCard))) {
+                bankerThirdCard = dealCard();
+                bankerCards.push(bankerThirdCard);
+            } else if (bankerScore === 6 && playerThirdCard && [6,7].includes(getCardValue(playerThirdCard))) {
+                bankerThirdCard = dealCard();
+                bankerCards.push(bankerThirdCard);
+            }
             
             // 顯示閒家牌
-            playerCards.forEach(card => {
-                displayCard(card, 'player-hand');
+            playerCards.forEach((card, index) => {
+                setTimeout(() => {
+                    displayCard(card, 'player-hand');
+                }, index * 500);
             });
             
             // 顯示莊家牌
-            bankerCards.forEach(card => {
-                displayCard(card, 'banker-hand');
+            bankerCards.forEach((card, index) => {
+                setTimeout(() => {
+                    displayCard(card, 'banker-hand');
+                }, (playerCards.length + index) * 500);
             });
             
-            // 計算結果 (這裡是簡化版，實際遊戲需要完整百家樂規則)
+            // 計算結果
             setTimeout(() => {
-                const result = calculateResult(playerCards, bankerCards);
-                showResult(result);
+                const finalPlayerScore = calculateHandScore(playerCards) % 10;
+                const finalBankerScore = calculateHandScore(bankerCards) % 10;
+                let result;
+                
+                if (finalPlayerScore > finalBankerScore) {
+                    result = 'player';
+                } else if (finalBankerScore > finalPlayerScore) {
+                    result = 'banker';
+                } else {
+                    result = 'tie';
+                }
+                
+                showResult(result, finalPlayerScore, finalBankerScore);
                 
                 // 開始10秒倒計時
                 startCountdown();
-            }, 1000);
+            }, (playerCards.length + bankerCards.length) * 500);
+        }
+
+        // 計算單張牌的值
+        function getCardValue(card) {
+            const value = card.substring(1); // 去掉花色
+            if (value === 'A') return 1;
+            if (['10', 'J', 'Q', 'K'].includes(value)) return 0;
+            return parseInt(value);
+        }
+
+        // 計算一手牌的總分
+        function calculateHandScore(cards) {
+            let total = 0;
+            for (let card of cards) {
+                total += getCardValue(card);
+            }
+            return total;
         }
 
         // 開始10秒倒計時
@@ -338,36 +434,25 @@
             document.getElementById(hand).appendChild(cardElement);
         }
 
-        // 計算結果 (簡化版)
-        function calculateResult(playerCards, bankerCards) {
-            // 簡化計算，實際遊戲需要完整百家樂點數計算規則
-            const playerScore = Math.floor(Math.random() * 10);
-            const bankerScore = Math.floor(Math.random() * 10);
-            
-            if (playerScore > bankerScore) return 'player';
-            if (bankerScore > playerScore) return 'banker';
-            return 'tie';
-        }
-
         // 顯示結果
-        function showResult(result) {
+        function showResult(result, playerScore, bankerScore) {
             let message = '';
             let winAmount = 0;
             
             if (result === currentBet) {
                 if (result === 'player') {
                     winAmount = betAmount * 2;
-                    message = `閒家贏! 你贏得 ${winAmount} 元`;
+                    message = `閒家 ${playerScore} 點 vs 莊家 ${bankerScore} 點! 閒家贏! 你贏得 ${winAmount} 元`;
                 } else if (result === 'banker') {
                     winAmount = Math.floor(betAmount * 1.95);
-                    message = `莊家贏! 你贏得 ${winAmount} 元`;
+                    message = `閒家 ${playerScore} 點 vs 莊家 ${bankerScore} 點! 莊家贏! 你贏得 ${winAmount} 元`;
                 } else if (result === 'tie') {
                     winAmount = betAmount * 9;
-                    message = `和局! 你贏得 ${winAmount} 元`;
+                    message = `閒家 ${playerScore} 點 vs 莊家 ${bankerScore} 點! 和局! 你贏得 ${winAmount} 元`;
                 }
                 balance += winAmount;
             } else {
-                message = `你輸了 ${betAmount} 元`;
+                message = `閒家 ${playerScore} 點 vs 莊家 ${bankerScore} 點! 你輸了 ${betAmount} 元`;
             }
             
             document.getElementById('result').textContent = message;
