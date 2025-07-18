@@ -119,6 +119,12 @@
             padding: 5px;
             border-bottom: 1px solid #1e8449;
         }
+        .countdown {
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+            color: #f39c12;
+        }
     </style>
 </head>
 <body>
@@ -128,7 +134,7 @@
         </header>
 
         <div class="balance">
-            餘額: <span id="balance">0</span> 元
+            餘額: <span id="balance">1000</span> 元
         </div>
 
         <div class="game-area">
@@ -145,6 +151,7 @@
                 <div class="result-display" id="result">
                     請下注
                 </div>
+                <div class="countdown" id="countdown"></div>
                 <div class="bet-area">
                     <div class="bet-option" data-bet="player" onclick="selectBet('player')">
                         閒家 1:1
@@ -190,6 +197,13 @@
         let betAmount = 0;
         let balance = 0;
         let gameInProgress = false;
+        let countdownInterval = null;
+        let countdown = 10;
+
+        // 初始化遊戲
+        function initGame() {
+            updateBalance();
+        }
 
         // 選擇下注選項
         function selectBet(betType) {
@@ -226,6 +240,12 @@
             gameInProgress = true;
             document.getElementById('result').textContent = `已下注 ${betAmount} 元在 ${getBetName(currentBet)}`;
             addHistory(`下注 ${betAmount} 元在 ${getBetName(currentBet)}`);
+            
+            // 禁用下注按鈕
+            document.querySelectorAll('.bet-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+                option.style.opacity = '0.6';
+            });
         }
 
         // 發牌
@@ -254,13 +274,54 @@
             setTimeout(() => {
                 const result = calculateResult(playerCards, bankerCards);
                 showResult(result);
-                gameInProgress = false;
-                currentBet = null;
-                document.querySelectorAll('.bet-option').forEach(option => {
-                    option.classList.remove('selected');
-                });
-                document.getElementById('deal-button').disabled = true;
+                
+                // 開始10秒倒計時
+                startCountdown();
             }, 1000);
+        }
+
+        // 開始10秒倒計時
+        function startCountdown() {
+            countdown = 10;
+            document.getElementById('countdown').textContent = `下一局將在 ${countdown} 秒後開始`;
+            
+            countdownInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('countdown').textContent = `下一局將在 ${countdown} 秒後開始`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    resetTable();
+                }
+            }, 1000);
+        }
+
+        // 重置牌桌
+        function resetTable() {
+            // 清空牌桌
+            document.getElementById('player-hand').innerHTML = '';
+            document.getElementById('banker-hand').innerHTML = '';
+            document.getElementById('result').textContent = '請下注';
+            document.getElementById('countdown').textContent = '';
+            
+            // 重置遊戲狀態
+            gameInProgress = false;
+            currentBet = null;
+            betAmount = 0;
+            
+            // 啟用下注按鈕
+            document.querySelectorAll('.bet-option').forEach(option => {
+                option.style.pointerEvents = 'auto';
+                option.style.opacity = '1';
+            });
+            
+            // 重置選擇狀態
+            document.querySelectorAll('.bet-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 禁用發牌按鈕
+            document.getElementById('deal-button').disabled = true;
         }
 
         // 顯示單張牌
@@ -370,6 +431,9 @@
             historyItem.textContent = message;
             document.getElementById('transaction-history').prepend(historyItem);
         }
+
+        // 初始化遊戲
+        window.onload = initGame;
     </script>
 </body>
 </html>
