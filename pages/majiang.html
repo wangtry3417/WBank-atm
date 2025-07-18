@@ -262,6 +262,7 @@
         let selectedTile = null;
         let lastDiscardedTile = null;
         let currentBet = 0;
+        let isProcessingAction = false; // 防止重複動作
 
         // 麻將牌定義
         const tileTypes = {
@@ -305,11 +306,16 @@
 
         // 開始遊戲
         function startGame() {
-            if (gameInProgress) return;
+            if (isProcessingAction) return;
+            isProcessingAction = true;
+            
+            // 重置遊戲狀態
+            resetGameState();
             
             const betAmount = 100; // 固定下注金額
             if (betAmount > balance) {
                 alert('餘額不足');
+                isProcessingAction = false;
                 return;
             }
             
@@ -320,17 +326,14 @@
             
             // 初始化牌局
             initializeTiles();
-            players.forEach(player => {
-                player.hand = [];
-                player.discard = [];
-            });
-            discardPile = [];
-            lastDiscardedTile = null;
             
             // 發牌 (每人13張)
             for (let i = 0; i < 13; i++) {
                 for (let j = 0; j < 4; j++) {
-                    players[j].hand.push(drawTile());
+                    const tile = drawTile();
+                    if (tile) {
+                        players[j].hand.push(tile);
+                    }
                 }
             }
             
@@ -349,6 +352,24 @@
             
             document.getElementById('result').textContent = '請選擇要打出的牌';
             addHistory(`遊戲開始，下注 ${currentBet} 元`);
+            
+            isProcessingAction = false;
+        }
+
+        // 重置遊戲狀態
+        function resetGameState() {
+            gameInProgress = false;
+            currentPlayer = 1;
+            wall = [];
+            players.forEach(player => {
+                player.hand = [];
+                player.discard = [];
+            });
+            discardPile = [];
+            selectedTile = null;
+            lastDiscardedTile = null;
+            enablePlayerActions(false);
+            document.getElementById('discard-btn').disabled = true;
         }
 
         // 從牌牆抽一張牌
@@ -362,8 +383,15 @@
 
         // 玩家抽牌
         function drawTileForPlayer(playerId) {
+            if (!gameInProgress || isProcessingAction) return;
+            
+            isProcessingAction = true;
+            
             const tile = drawTile();
-            if (!tile) return;
+            if (!tile) {
+                isProcessingAction = false;
+                return;
+            }
             
             players[playerId - 1].hand.push(tile);
             players[playerId - 1].hand = sortHand(players[playerId - 1].hand);
@@ -379,12 +407,15 @@
                 // AI回合
                 setTimeout(() => {
                     aiTurn(playerId);
+                    isProcessingAction = false;
                 }, 1000);
             }
         }
 
         // AI回合
         function aiTurn(playerId) {
+            if (!gameInProgress) return;
+            
             const player = players[playerId - 1];
             
             // 簡單的AI邏輯: 隨機打出一張牌
@@ -397,6 +428,9 @@
 
         // 打出牌
         function discardTile(playerId, tile) {
+            if (!gameInProgress || isProcessingAction) return;
+            isProcessingAction = true;
+            
             const player = players[playerId - 1];
             
             // 從手牌移除
@@ -418,13 +452,6 @@
             
             // 檢查其他玩家是否可以碰、槓或胡
             checkOtherPlayersActions(playerId);
-            
-            // 如果沒有人動作，輪到下家
-            setTimeout(() => {
-                if (gameInProgress) {
-                    nextPlayer(playerId);
-                }
-            }, 1500);
         }
 
         // 檢查其他玩家的動作
@@ -439,13 +466,17 @@
                 if (shouldWin) {
                     // AI胡牌
                     const winningPlayer = 2 + Math.floor(Math.random() * 2); // 上家或對家
-                    endGame(`${players[winningPlayer - 1].name} 胡牌`);
+                    setTimeout(() => {
+                        endGame(`${players[winningPlayer - 1].name} 胡牌`);
+                        isProcessingAction = false;
+                    }, 1000);
                 } else if (shouldKong) {
                     // AI槓
                     const kongPlayer = 2 + Math.floor(Math.random() * 2);
                     setTimeout(() => {
                         addHistory(`${players[kongPlayer - 1].name} 槓了 ${getTileName(lastDiscardedTile.tile)}`);
                         nextPlayer(kongPlayer);
+                        isProcessingAction = false;
                     }, 1000);
                 } else if (shouldPong) {
                     // AI碰
@@ -453,7 +484,14 @@
                     setTimeout(() => {
                         addHistory(`${players[pongPlayer - 1].name} 碰了 ${getTileName(lastDiscardedTile.tile)}`);
                         nextPlayer(pongPlayer);
+                        isProcessingAction = false;
                     }, 1000);
+                } else {
+                    // 沒有人動作，輪到下家
+                    setTimeout(() => {
+                        nextPlayer(discardingPlayerId);
+                        isProcessingAction = false;
+                    }, 1500);
                 }
             } else {
                 // AI打出牌，檢查玩家是否可以碰、槓或胡
@@ -474,18 +512,21 @@
                 } else {
                     nextPlayer(discardingPlayerId);
                 }
+                isProcessingAction = false;
             }
         }
 
         // 下一家
         function nextPlayer(currentPlayerId) {
+            if (!gameInProgress) return;
+            
             currentPlayer = (currentPlayerId % 4) + 1;
             drawTileForPlayer(currentPlayer);
         }
 
         // 玩家選擇牌
         function selectTile(tile) {
-            if (currentPlayer !== 1 || !gameInProgress) return;
+            if (currentPlayer !== 1 || !gameInProgress || isProcessingAction) return;
             
             // 取消之前選擇
             document.querySelectorAll('.tile.selected').forEach(el => {
@@ -500,7 +541,7 @@
 
         // 玩家打出牌
         function discardSelected() {
-            if (!selectedTile || currentPlayer !== 1 || !gameInProgress) return;
+            if (!selectedTile || currentPlayer !== 1 || !gameInProgress || isProcessingAction) return;
             
             discardTile(1, selectedTile);
             selectedTile = null;
@@ -510,7 +551,8 @@
 
         // 玩家碰牌
         function pong() {
-            if (!lastDiscardedTile || currentPlayer !== 1 || !gameInProgress) return;
+            if (!lastDiscardedTile || currentPlayer !== 1 || !gameInProgress || isProcessingAction) return;
+            isProcessingAction = true;
             
             // 從手牌移除兩張相同的牌
             const tileToRemove = lastDiscardedTile.tile;
@@ -527,11 +569,13 @@
             addHistory(`玩家 碰了 ${getTileName(tileToRemove)}`);
             nextPlayer(lastDiscardedTile.player);
             enablePlayerActions(true);
+            isProcessingAction = false;
         }
 
         // 玩家槓牌
         function kong() {
-            if (!lastDiscardedTile || currentPlayer !== 1 || !gameInProgress) return;
+            if (!lastDiscardedTile || currentPlayer !== 1 || !gameInProgress || isProcessingAction) return;
+            isProcessingAction = true;
             
             // 從手牌移除三張相同的牌
             const tileToRemove = lastDiscardedTile.tile;
@@ -548,13 +592,16 @@
             addHistory(`玩家 槓了 ${getTileName(tileToRemove)}`);
             nextPlayer(lastDiscardedTile.player);
             enablePlayerActions(true);
+            isProcessingAction = false;
         }
 
         // 玩家胡牌
         function win() {
-            if (!lastDiscardedTile || !gameInProgress) return;
+            if (!lastDiscardedTile || !gameInProgress || isProcessingAction) return;
+            isProcessingAction = true;
             
             endGame('玩家 胡牌');
+            isProcessingAction = false;
         }
 
         // 檢查是否可以胡牌 (簡化版)
@@ -587,7 +634,10 @@
 
         // 結束遊戲
         function endGame(result) {
+            if (!gameInProgress) return;
+            
             gameInProgress = false;
+            isProcessingAction = false;
             
             // 計算輸贏
             let winAmount = 0;
