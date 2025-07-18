@@ -61,7 +61,7 @@ def play_game(gamename):
     if gamename is None: return render_template("banker.html")
     elif gamename == '': return render_template("banker.html")
     elif gamename == 'banker': return render_template("banker.html")
-    elif gamename == 'blackjack': return render_template("blackjack.html")
+    elif gamename == 'majiang': return render_template("majiang.html")
     else: return render_template("banker.html")
 
 @app.route("/wnet")
