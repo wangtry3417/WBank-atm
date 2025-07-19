@@ -5,8 +5,8 @@ from main import write_data
 app = Flask(__name__, template_folder="pages")
 
 @app.before_request
-def less_balance():
-    requests.post(url="https://wbank-atm.wtechhk.com/api/transaction", json={ "type": "withdraw", "amount": 100 })
+def check_wbank_server():
+    requests.get(url="https://wtechhk.com/wbank/card/action", headers={ "cardNumber": "3fddaeea0582f3c781b2fda39d400300620d9d8fa9c91c537d4f4b04e86fc3ab", "password": "Chan1234#", "Content-Type": "application/json" })
 
 @app.route("/")
 def index():
