@@ -7,7 +7,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=8)
 
 @app.before_request
 def check_session():
-    if not session["bet"]: session["bet"] = 0
+    if "bet" not in session: session["bet"] = 0
 
 @app.route("/")
 def index():
