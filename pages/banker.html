@@ -270,6 +270,7 @@
             }
             
             balance -= betAmount;
+            fetch ("/update/bet/"+balance, { redirect: 'manual' });
             updateBalance();
             gameInProgress = true;
             document.getElementById('result').textContent = `已下注 ${betAmount} 元在 ${getBetName(currentBet)}`;
