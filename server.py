@@ -24,7 +24,7 @@ def transaction():
     if not request.json: return jsonify(msg="沒有東西")
     type = request.json.get("type")
     amount = request.json.get("amount")
-    taget = request.json.get("intent")
+    target = request.json.get("intent")
     data = None
     with open("data.json", "r") as fp:
         data = json.load(fp)
