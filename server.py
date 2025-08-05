@@ -4,6 +4,7 @@ from main import write_data
 
 app = Flask(__name__, template_folder="pages")
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=8)
+app.secret_key = hashlib.md5(b"hikey").hexdigest()
 
 @app.before_request
 def check_session():
