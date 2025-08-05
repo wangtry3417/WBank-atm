@@ -35,7 +35,7 @@ def transaction():
             session["bet"] += int(amount)
             redirectURL = "https://wbank-atm.wtechhk.com/play/banker"
         url = f"https://wtechhk.com/wbank/auth/v1?url=/wbank/card/page/wbank/{amount}?url={redirectURL}"
-        return redirect(url)
+        return jsonify(genURL=url)
     elif type == "deposit":
         data["password"] = data["loginPw"]
         data["cardNumber"] = hashlib.sha256(f"{data['accnumber']}->{data['password']}".encode("utf-8")).hexdigest()
