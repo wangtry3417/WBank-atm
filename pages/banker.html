@@ -163,6 +163,7 @@
                         和局 8:1
                     </div>
                 </div>
+                <div id="trend" style="text-align: center; margin: 10px 0; color: #f39c12;"></div>
                 <div style="text-align: center; margin-top: 20px;">
                     <input type="number" id="bet-amount" min="10" max="10000" value="100" style="width: 100px;">
                     <button onclick="placeBet()">下注</button>
@@ -200,6 +201,7 @@
         let countdownInterval = null;
         let countdown = 10;
         let deck = [];
+        let gameHistory = [];
 
         // 初始化遊戲
         function initGame() {
@@ -441,6 +443,8 @@
             let winAmount = 0;
             
             if (result === currentBet) {
+                gameHistory.push(result);
+                updateTrendAnalysis();
                 if (result === 'player') {
                     winAmount = betAmount * 2;
                     message = `閒家 ${playerScore} 點 vs 莊家 ${bankerScore} 點! 閒家贏! 你贏得 ${winAmount} 元`;
@@ -460,6 +464,17 @@
             updateBalance();
             addHistory(`遊戲結果: ${message}`);
         }
+
+         function updateTrendAnalysis() {
+             // 分析最近5局的趨勢（例如：莊家連開？）
+             const recent = gameHistory.slice(-5);
+             const bankerWins = recent.filter(x => x === 'banker').length;
+             const playerWins = recent.filter(x => x === 'player').length;
+    
+             // 在畫面顯示趨勢（僅供參考，不保證贏錢）
+             document.getElementById('trend').textContent = 
+             `近期趨勢：莊家 ${bankerWins} 勝，閒家 ${playerWins} 勝`;
+         }
 
         // 更新餘額
         function updateBalance() {
