@@ -476,7 +476,7 @@
         }
 
         // 銀行入帳處理
-        function processDeposit() {
+        async function processDeposit() {
             const amount = parseInt(document.getElementById('deposit-amount').value);
             const account = document.getElementById('account-number').value;
             const bank = document.getElementById('bank-select').value;
@@ -497,8 +497,9 @@
             }
             
             let bankName = bank === 'wbank' ? 'WBank 網上銀行' : '其他銀行';
-            let response = fetch ("/api/transaction", { method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ type: "withdraw", amount: amount, intent: "banker" })});
-            window.location.href=response.json().genURL;
+            let response = await fetch ("/api/transaction", { method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ type: "withdraw", amount: amount, intent: "banker" })});
+            let data = await response.json();
+            window.location.href=data.genURL;
             addHistory(`成功從 ${bankName} 帳號 ${account} 入帳 ${amount} 元`);
             // 清空表單
             document.getElementById('deposit-amount').value = '';
