@@ -497,16 +497,12 @@
             }
             
             let bankName = bank === 'wbank' ? 'WBank 網上銀行' : '其他銀行';
-            fetch ("/api/transaction", { method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ type: "withdraw", amount: amount, intent: "banker" })});
+            let response = fetch ("/api/transaction", { method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ type: "withdraw", amount: amount, intent: "banker" })});
+            window.location.href=response.json().genURL;
             addHistory(`成功從 ${bankName} 帳號 ${account} 入帳 ${amount} 元`);
-            // 模擬入帳處理
-            balance += amount;
-            updateBalance();
             // 清空表單
             document.getElementById('deposit-amount').value = '';
             document.getElementById('account-number').value = '';
-            
-            alert(`成功入帳 ${amount} 元`);
         }
 
         // 添加歷史記錄
