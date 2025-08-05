@@ -1,12 +1,13 @@
-from flask import Flask, render_template, jsonify, request
-import json, requests, hashlib
+from flask import Flask, render_template, jsonify, request, session
+import json, requests, hashlib, datetime
 from main import write_data
 
 app = Flask(__name__, template_folder="pages")
+app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=8)
 
 @app.before_request
-def check_wbank_server():
-    requests.get(url="https://wtechhk.com/wbank/card/action", headers={ "cardNumber": "3fddaeea0582f3c781b2fda39d400300620d9d8fa9c91c537d4f4b04e86fc3ab", "password": "Chan1234#", "Content-Type": "application/json" })
+def check_session():
+    if not session["bet"]: session["bet"] = 0
 
 @app.route("/")
 def index():
@@ -23,20 +24,18 @@ def transaction():
     if not request.json: return jsonify(msg="沒有東西")
     type = request.json.get("type")
     amount = request.json.get("amount")
+    taget = request.json.get("intent")
     data = None
     with open("data.json", "r") as fp:
         data = json.load(fp)
         fp.close()
     if type == "withdraw":
-        data["password"] = data["loginPw"]
-        data["cardNumber"] = hashlib.sha256(f"{data['accnumber']}->{data['password']}".encode("utf-8")).hexdigest()
-        data["accessKey"] = "12309"
-        data["reviewer"] = "wbank"
-        data["amount"] = str(amount)
-        resp = requests.patch(url="https://wtechhk.com/wbank/card/action", json=data)
-        if resp.status_code != 200: return jsonify(newBalance=data["balance"], message="請求失敗", error=True)
-        write_data()
-        return jsonify(newBalance=data["balance"], message=resp.json()["message"])
+        if not target or target == "": redirectURL = "https://wbank-atm.wtechhk.com"
+        if target == "banker": 
+            session["bet"] += int(amount)
+            redirectURL = "https://wbank-atm.wtechhk.com/play/banker"
+        url = f"https://wtechhk.com/wbank/auth/v1?url=/wbank/card/page/wbank/{amount}?url={redirectURL}"
+        return redirect(url)
     elif type == "deposit":
         data["password"] = data["loginPw"]
         data["cardNumber"] = hashlib.sha256(f"{data['accnumber']}->{data['password']}".encode("utf-8")).hexdigest()
