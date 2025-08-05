@@ -63,6 +63,11 @@ def play_game(gamename):
     elif gamename == 'majiang': return render_template("majiang.html")
     else: return render_template("banker.html")
 
+@app.route("/update/bet/<amount>")
+def update_bet_session(amount):
+    session["bet"] = int(amount)
+    return redirect("/play/banker")
+
 @app.route("/wnet")
 def wnet_web():
     return render_template("wnet.html")
