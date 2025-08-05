@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, session
+from flask import Flask, render_template, jsonify, request, session, redirect
 import json, requests, hashlib, datetime
 
 app = Flask(__name__, template_folder="pages")
