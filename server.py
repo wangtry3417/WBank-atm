@@ -1,6 +1,5 @@
 from flask import Flask, render_template, jsonify, request, session
 import json, requests, hashlib, datetime
-from main import write_data
 
 app = Flask(__name__, template_folder="pages")
 app.config['PERMANENT_SESSION_LIFETIME'] = datetime.timedelta(minutes=8)
@@ -16,7 +15,7 @@ def index():
 
 @app.route("/api/card")
 def res_card():
-    write_data()
+    #write_data()
     with open("data.json", "r") as fp:
         return jsonify(json.load(fp))
 
@@ -44,13 +43,13 @@ def transaction():
         if resp.status_code != 200: return jsonify(msg="Error")
         res = requests.get(url="https://wtechhk.com/wbank/card/action", headers={"cardNumber": data["cardNumber"], "password": data["password"]})
         if resp.status_code != 200: return jsonify(msg=str(res.content.decode("utf-8")))
-        write_data()
+        #write_data()
         return jsonify(balance=res.json()["balance"])
     return jsonify(msg="請求方式不支援", code=400)
 
 @app.route("/make/money")
 def make_money_page():
-    write_data()
+    #write_data()
     with open("data.json", "r") as fp:
         data = json.load(fp)
         user = data["loginUser"]
