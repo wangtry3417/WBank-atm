@@ -44,7 +44,7 @@ def transaction():
         res = requests.get(url="https://wtechhk.com/wbank/card/action", headers={"cardNumber": data["cardNumber"], "password": data["password"]})
         if resp.status_code != 200: return jsonify(msg=str(res.content.decode("utf-8")))
         #write_data()
-        return jsonify(balance=res.json()["balance"])
+        return jsonify(balance=res.json())
     return jsonify(msg="請求方式不支援", code=400)
 
 @app.route("/make/money")
