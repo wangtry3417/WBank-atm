@@ -60,8 +60,8 @@ def play_game(gamename):
     if gamename is None: return render_template("banker.html")
     elif gamename == '': return render_template("banker.html")
     elif gamename == 'banker': return render_template("banker.html")
-    elif gamename == 'majiang': return render_template("majiang.html")
-    else: return render_template("banker.html")
+    elif gamename == 'blackjack': return render_template("blackjack.html")
+    else: return redirect("/play/banker")
 
 @app.route("/update/bet/<amount>")
 def update_bet_session(amount):
