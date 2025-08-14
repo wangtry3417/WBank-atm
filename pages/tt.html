@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>線上十三張遊戲</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background-color: #0a5c36;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #0c3b24;
+            padding: 15px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .game-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .game-table {
+            flex: 2;
+            background-color: #0c3b24;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 400px;
+        }
+        .bank-area {
+            flex: 1;
+            background-color: #0c3b24;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        .bet-area {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .bet-option {
+            background-color: #1e8449;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .bet-option:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+        .bet-option.selected {
+            background-color: #f39c12;
+            box-shadow: 0 0 10px #f39c12;
+        }
+        .card {
+            width: 60px;
+            height: 90px;
+            background-color: white;
+            color: black;
+            border-radius: 5px;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px;
+            font-size: 20px;
+            position: relative;
+        }
+        .card.red {
+            color: red;
+        }
+        .card .suit {
+            position: absolute;
+            font-size: 12px;
+        }
+        .card .suit.top {
+            top: 5px;
+            left: 5px;
+        }
+        .card .suit.bottom {
+            bottom: 5px;
+            right: 5px;
+            transform: rotate(180deg);
+        }
+        .result-display {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+            min-height: 30px;
+        }
+        .bank-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, select, button {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+        }
+        button {
+            background-color: #1e8449;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+        .balance {
+            font-size: 24px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .history {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #0a5c36;
+            border-radius: 5px;
+        }
+        .history-item {
+            padding: 5px;
+            border-bottom: 1px solid #1e8449;
+        }
+        .countdown {
+            font-size: 18px;
+            text-align: center;
+            margin: 10px 0;
+            color: #f39c12;
+        }
+        .hand-section {
+            margin-bottom: 20px;
+        }
+        .hand-title {
+            margin-bottom: 10px;
+        }
+        .special-card {
+            border: 2px solid gold;
+            box-shadow: 0 0 10px gold;
+        }
+        .compare-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+        }
+        .score-display {
+            font-size: 18px;
+            margin-top: 10px;
+            color: #f39c12;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>線上十三張遊戲</h1>
+        </header>
+
+        <div class="balance">
+            餘額: <span id="balance">{{ session["bet"] }}</span> 元
+        </div>
+
+        <div class="game-area">
+            <div class="game-table">
+                <h2>遊戲桌</h2>
+                
+                <div class="hand-section">
+                    <h3 class="hand-title">莊家牌組</h3>
+                    <div id="banker-hand"></div>
+                    <div class="score-display" id="banker-score"></div>
+                </div>
+                
+                <div class="hand-section">
+                    <h3 class="hand-title">玩家牌組</h3>
+                    <div id="player-hand"></div>
+                    <div class="score-display" id="player-score"></div>
+                </div>
+                
+                <div class="result-display" id="result">
+                    請下注
+                </div>
+                
+                <div class="countdown" id="countdown"></div>
+                
+                <div class="bet-area">
+                    <div class="bet-option" data-bet="win" onclick="selectBet('win')">
+                        玩家贏 1:1
+                    </div>
+                    <div class="bet-option" data-bet="lose" onclick="selectBet('lose')">
+                        莊家贏 1:1
+                    </div>
+                    <div class="bet-option" data-bet="tie" onclick="selectBet('tie')">
+                        和局 8:1
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <input type="number" id="bet-amount" min="10" max="10000" value="100" style="width: 100px;">
+                    <button onclick="placeBet()">下注</button>
+                    <button onclick="dealCards()" id="deal-button" disabled>發牌</button>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button onclick="compareHands()" id="compare-button" class="compare-button" disabled>比牌</button>
+                </div>
+            </div>
+
+            <div class="bank-area">
+                <h2>銀行入帳</h2>
+                <div class="bank-form">
+                    <select id="bank-select">
+                        <option value="wbank">WBank 泓財銀行</option>
+                    </select>
+                    <input type="number" id="deposit-amount" placeholder="入帳金額" min="100" max="100000">
+                    <input type="text" id="account-number" placeholder="銀行帳號">
+                     <p style="color: gray;">按下確認入帳按鈕，代表您同意相關規定。</p>
+                    <button onclick="processDeposit()">確認入帳</button>
+                </div>
+                <div class="history">
+                    <h3>交易記錄</h3>
+                    <div id="transaction-history">
+                        <div class="history-item">歡迎使用十三張遊戲</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 遊戲變數
+        let currentBet = null;
+        let betAmount = 0;
+        let balance = "{{ session["bet"] }}";
+        let gameInProgress = false;
+        let countdownInterval = null;
+        let countdown = 10;
+        let deck = [];
+        let gameHistory = [];
+        let playerCards = [];
+        let bankerCards = [];
+        let playerSpecialCards = [];
+        let bankerSpecialCards = [];
+
+        // 初始化遊戲
+        function initGame() {
+            updateBalance();
+            initializeDeck();
+        }
+
+        // 初始化牌組 (使用兩副牌)
+        function initializeDeck() {
+            const suits = ['♥', '♦', '♠', '♣'];
+            const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+            
+            deck = [];
+            // 使用兩副牌
+            for (let i = 0; i < 2; i++) {
+                for (let suit of suits) {
+                    for (let value of values) {
+                        deck.push({suit: suit, value: value});
+                    }
+                }
+            }
+            
+            // 洗牌
+            shuffleDeck();
+        }
+
+        // Fisher-Yates洗牌算法
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        // 從牌組頂部發一張牌
+        function dealCard() {
+            if (deck.length < 13) {
+                initializeDeck(); // 如果牌不夠了，重新洗牌
+            }
+            return deck.pop();
+        }
+
+        // 選擇下注選項
+        function selectBet(betType) {
+            if (gameInProgress) return;
+            
+            currentBet = betType;
+            document.querySelectorAll('.bet-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`.bet-option[data-bet="${betType}"]`).classList.add('selected');
+            document.getElementById('deal-button').disabled = false;
+        }
+
+        // 下注
+        function placeBet() {
+            if (!currentBet) {
+                alert('請選擇下注選項');
+                return;
+            }
+            
+            betAmount = parseInt(document.getElementById('bet-amount').value);
+            if (isNaN(betAmount) || betAmount < 10) {
+                alert('下注金額至少10元');
+                return;
+            }
+            
+            if (betAmount > balance) {
+                alert('餘額不足');
+                return;
+            }
+            
+            balance -= betAmount;
+            fetch ("/update/bet/"+balance, { redirect: 'manual' });
+            updateBalance();
+            gameInProgress = true;
+            document.getElementById('result').textContent = `已下注 ${betAmount} 元在 ${getBetName(currentBet)}`;
+            addHistory(`下注 ${betAmount} 元在 ${getBetName(currentBet)}`);
+            
+            // 禁用下注按鈕
+            document.querySelectorAll('.bet-option').forEach(option => {
+                option.style.pointerEvents = 'none';
+                option.style.opacity = '0.6';
+            });
+        }
+
+        // 發牌
+        function dealCards() {
+            if (!gameInProgress) return;
+            
+            // 清空牌桌
+            document.getElementById('player-hand').innerHTML = '';
+            document.getElementById('banker-hand').innerHTML = '';
+            document.getElementById('player-score').textContent = '';
+            document.getElementById('banker-score').textContent = '';
+            
+            // 重置牌組
+            playerCards = [];
+            bankerCards = [];
+            playerSpecialCards = [];
+            bankerSpecialCards = [];
+            
+            // 發13張牌給玩家和莊家
+            for (let i = 0; i < 13; i++) {
+                playerCards.push(dealCard());
+                bankerCards.push(dealCard());
+            }
+            
+            // 顯示玩家牌
+            displayHand(playerCards, 'player-hand');
+            
+            // 顯示莊家牌 (背面朝上)
+            displayHand(bankerCards, 'banker-hand', true);
+            
+            // 啟用比牌按鈕
+            document.getElementById('compare-button').disabled = false;
+            
+            // 禁用發牌按鈕
+            document.getElementById('deal-button').disabled = true;
+        }
+
+        // 顯示手牌
+        function displayHand(cards, handId, isHidden = false) {
+            const handElement = document.getElementById(handId);
+            handElement.innerHTML = '';
+            
+            if (isHidden) {
+                for (let i = 0; i < cards.length; i++) {
+                    const cardBack = document.createElement('div');
+                    cardBack.className = 'card';
+                    cardBack.style.background = 'linear-gradient(135deg, #1e3c72, #2a5298)';
+                    cardBack.style.color = 'white';
+                    cardBack.textContent = '?';
+                    handElement.appendChild(cardBack);
+                }
+            } else {
+                cards.forEach(card => {
+                    displayCard(card, handElement);
+                });
+            }
+        }
+
+        // 顯示單張牌
+        function displayCard(card, parentElement, isSpecial = false) {
+            const cardElement = document.createElement('div');
+            cardElement.className = 'card';
+            
+            // 判斷花色顏色
+            if (card.suit === '♥' || card.suit === '♦') {
+                cardElement.classList.add('red');
+            }
+            
+            if (isSpecial) {
+                cardElement.classList.add('special-card');
+            }
+            
+            // 添加牌面值
+            cardElement.textContent = card.value;
+            
+            // 添加花色標記
+            const suitTop = document.createElement('div');
+            suitTop.className = 'suit top';
+            suitTop.textContent = card.suit;
+            cardElement.appendChild(suitTop);
+            
+            const suitBottom = document.createElement('div');
+            suitBottom.className = 'suit bottom';
+            suitBottom.textContent = card.suit;
+            cardElement.appendChild(suitBottom);
+            
+            parentElement.appendChild(cardElement);
+        }
+
+        // 比牌
+        function compareHands() {
+            // 顯示莊家的牌
+            document.getElementById('banker-hand').innerHTML = '';
+            bankerCards.forEach(card => {
+                displayCard(card, document.getElementById('banker-hand'));
+            });
+            
+            // 分析牌型
+            const playerResult = analyzeHand(playerCards);
+            const bankerResult = analyzeHand(bankerCards);
+            
+            // 顯示特殊牌組
+            displaySpecialCards(playerResult.specialCards, 'player-hand', '玩家');
+            displaySpecialCards(bankerResult.specialCards, 'banker-hand', '莊家');
+            
+            // 顯示分數
+            document.getElementById('player-score').textContent = `牌型: ${playerResult.type} (分數: ${playerResult.score})`;
+            document.getElementById('banker-score').textContent = `牌型: ${bankerResult.type} (分數: ${bankerResult.score})`;
+            
+            // 比較結果
+            let result;
+            if (playerResult.score > bankerResult.score) {
+                result = 'win';
+            } else if (bankerResult.score > playerResult.score) {
+                result = 'lose';
+            } else {
+                result = 'tie';
+            }
+            
+            showResult(result, playerResult, bankerResult);
+            
+            // 開始10秒倒計時
+            startCountdown();
+        }
+
+        // 顯示特殊牌組
+        function displaySpecialCards(specialCards, handId, playerType) {
+            const handElement = document.getElementById(handId);
+            handElement.innerHTML = '';
+            
+            // 顯示普通牌
+            specialCards.normalCards.forEach(card => {
+                displayCard(card, handElement);
+            });
+            
+            // 顯示特殊牌 (頭、中、尾)
+            ['head', 'middle', 'tail'].forEach((type, index) => {
+                const group = document.createElement('div');
+                group.style.display = 'inline-block';
+                group.style.margin = '0 10px';
+                group.style.verticalAlign = 'top';
+                
+                const title = document.createElement('div');
+                title.textContent = `${playerType} ${getTypeName(type)}`;
+                title.style.marginBottom = '5px';
+                group.appendChild(title);
+                
+                specialCards[type].forEach(card => {
+                    displayCard(card, group, true);
+                });
+                
+                handElement.appendChild(group);
+            });
+        }
+
+        // 獲取牌型名稱
+        function getTypeName(type) {
+            switch(type) {
+                case 'head': return '頭';
+                case 'middle': return '中';
+                case 'tail': return '尾';
+                default: return '';
+            }
+        }
+
+        // 分析手牌 (十三張規則)
+        function analyzeHand(cards) {
+            // 複製牌組以便排序
+            const sortedCards = [...cards].sort((a, b) => getCardValue(b.value) - getCardValue(a.value));
+            
+            // 找出特殊牌組 (頭3張，中5張，尾5張)
+            const specialCards = {
+                head: sortedCards.slice(0, 3),
+                middle: sortedCards.slice(3, 8),
+                tail: sortedCards.slice(8, 13),
+                normalCards: sortedCards
+            };
+            
+            // 分析每組牌型
+            const headType = getCardType(specialCards.head);
+            const middleType = getCardType(specialCards.middle);
+            const tailType = getCardType(specialCards.tail);
+            
+            // 計算總分 (簡化版)
+            const headScore = calculateTypeScore(headType, 3);
+            const middleScore = calculateTypeScore(middleType, 5);
+            const tailScore = calculateTypeScore(tailType, 5);
+            const totalScore = headScore + middleScore + tailScore;
+            
+            return {
+                type: `${getTypeName(headType)} / ${getTypeName(middleType)} / ${getTypeName(tailType)}`,
+                score: totalScore,
+                specialCards: specialCards
+            };
+        }
+
+        // 判斷牌型
+        function getCardType(cards) {
+            // 簡化版牌型判斷
+            const values = cards.map(card => card.value);
+            const suits = cards.map(card => card.suit);
+            
+            // 檢查同花順
+            if (isStraightFlush(cards)) return 'straight-flush';
+            
+            // 檢查四條 (只有中或尾可能有)
+            if (cards.length >= 4 && isFourOfAKind(values)) return 'four-of-a-kind';
+            
+            // 檢查葫蘆
+            if (isFullHouse(values)) return 'full-house';
+            
+            // 檢查同花
+            if (isFlush(suits)) return 'flush';
+            
+            // 檢查順子
+            if (isStraight(values)) return 'straight';
+            
+            // 檢查三條
+            if (isThreeOfAKind(values)) return 'three-of-a-kind';
+            
+            // 檢查兩對
+            if (isTwoPair(values)) return 'two-pair';
+            
+            // 檢查一對
+            if (isOnePair(values)) return 'one-pair';
+            
+            // 否則就是散牌
+            return 'high-card';
+        }
+
+        // 計算牌型分數
+        function calculateTypeScore(type, cardCount) {
+            const typeScores = {
+                'straight-flush': cardCount === 5 ? 30 : 20,
+                'four-of-a-kind': 16,
+                'full-house': 12,
+                'flush': 8,
+                'straight': 4,
+                'three-of-a-kind': 3,
+                'two-pair': 2,
+                'one-pair': 1,
+                'high-card': 0
+            };
+            
+            return typeScores[type] || 0;
+        }
+
+        // 牌型判斷函數
+        function isStraightFlush(cards) {
+            return isFlush(cards.map(c => c.suit)) && isStraight(cards.map(c => c.value));
+        }
+        
+        function isFourOfAKind(values) {
+            const valueCount = {};
+            values.forEach(v => valueCount[v] = (valueCount[v] || 0) + 1);
+            return Object.values(valueCount).some(count => count === 4);
+        }
+        
+        function isFullHouse(values) {
+            const valueCount = {};
+            values.forEach(v => valueCount[v] = (valueCount[v] || 0) + 1);
+            const counts = Object.values(valueCount);
+            return counts.includes(3) && counts.includes(2);
+        }
+        
+        function isFlush(suits) {
+            return new Set(suits).size === 1;
+        }
+        
+        function isStraight(values) {
+            const cardValues = values.map(v => getCardValue(v));
+            cardValues.sort((a, b) => a - b);
+            
+            // 檢查是否是連續的
+            for (let i = 1; i < cardValues.length; i++) {
+                if (cardValues[i] !== cardValues[i-1] + 1) {
+                    // 特殊情況: A-2-3-4-5
+                    if (i === cardValues.length - 1 && cardValues[0] === 1 && cardValues[4] === 5) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        function isThreeOfAKind(values) {
+            const valueCount = {};
+            values.forEach(v => valueCount[v] = (valueCount[v] || 0) + 1);
+            return Object.values(valueCount).some(count => count === 3);
+        }
+        
+        function isTwoPair(values) {
+            const valueCount = {};
+            values.forEach(v => valueCount[v] = (valueCount[v] || 0) + 1);
+            return Object.values(valueCount).filter(count => count === 2).length >= 2;
+        }
+        
+        function isOnePair(values) {
+            const valueCount = {};
+            values.forEach(v => valueCount[v] = (valueCount[v] || 0) + 1);
+            return Object.values(valueCount).some(count => count === 2);
+        }
+
+        // 計算單張牌的值
+        function getCardValue(value) {
+            if (value === 'A') return 14;
+            if (value === 'K') return 13;
+            if (value === 'Q') return 12;
+            if (value === 'J') return 11;
+            return parseInt(value);
+        }
+
+        // 開始10秒倒計時
+        function startCountdown() {
+            countdown = 10;
+            document.getElementById('countdown').textContent = `下一局將在 ${countdown} 秒後開始`;
+            
+            countdownInterval = setInterval(() => {
+                countdown--;
+                document.getElementById('countdown').textContent = `下一局將在 ${countdown} 秒後開始`;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    resetTable();
+                }
+            }, 1000);
+        }
+
+        // 重置牌桌
+        function resetTable() {
+            // 清空牌桌
+            document.getElementById('player-hand').innerHTML = '';
+            document.getElementById('banker-hand').innerHTML = '';
+            document.getElementById('player-score').textContent = '';
+            document.getElementById('banker-score').textContent = '';
+            document.getElementById('result').textContent = '請下注';
+            document.getElementById('countdown').textContent = '';
+            
+            // 重置遊戲狀態
+            gameInProgress = false;
+            currentBet = null;
+            betAmount = 0;
+            
+            // 啟用下注按鈕
+            document.querySelectorAll('.bet-option').forEach(option => {
+                option.style.pointerEvents = 'auto';
+                option.style.opacity = '1';
+            });
+            
+            // 重置選擇狀態
+            document.querySelectorAll('.bet-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 禁用發牌和比牌按鈕
+            document.getElementById('deal-button').disabled = true;
+            document.getElementById('compare-button').disabled = true;
+        }
+
+        // 顯示結果
+        function showResult(result, playerResult, bankerResult) {
+            let message = '';
+            let winAmount = 0;
+            
+            if (result === currentBet) {
+                gameHistory.push(result);
+                if (result === 'win') {
+                    winAmount = betAmount * 2;
+                    message = `玩家贏 (${playerResult.score} 分 vs 莊家 ${bankerResult.score} 分)! 你贏得 ${winAmount} 元`;
+                } else if (result === 'lose') {
+                    winAmount = betAmount * 2;
+                    message = `莊家贏 (${bankerResult.score} 分 vs 玩家 ${playerResult.score} 分)! 你贏得 ${winAmount} 元`;
+                } else if (result === 'tie') {
+                    winAmount = betAmount * 9;
+                    message = `和局 (${playerResult.score} 分 vs ${bankerResult.score} 分)! 你贏得 ${winAmount} 元`;
+                }
+                balance += winAmount;
+            } else {
+                message = `你輸了 ${betAmount} 元 (玩家 ${playerResult.score} 分 vs 莊家 ${bankerResult.score} 分)`;
+            }
+            
+            document.getElementById('result').textContent = message;
+            updateBalance();
+            addHistory(`遊戲結果: ${message}`);
+        }
+
+        // 更新餘額
+        function updateBalance() {
+            document.getElementById('balance').textContent = balance;
+        }
+
+        // 獲取下注選項名稱
+        function getBetName(betType) {
+            switch(betType) {
+                case 'win': return '玩家贏';
+                case 'lose': return '莊家贏';
+                case 'tie': return '和局';
+                default: return '';
+            }
+        }
+
+        // 銀行入帳處理
+        async function processDeposit() {
+            const amount = parseInt(document.getElementById('deposit-amount').value);
+            const account = document.getElementById('account-number').value;
+            const bank = document.getElementById('bank-select').value;
+            
+            if (isNaN(amount)) {
+                alert('請輸入有效金額');
+                return;
+            }
+            
+            if (amount < 100) {
+                alert('最低入帳金額為100元');
+                return;
+            }
+            
+            if (!account) {
+                alert('請輸入銀行帳號');
+                return;
+            }
+            
+            let bankName = bank === 'wbank' ? 'WBank 網上銀行' : '其他銀行';
+            let response = await fetch ("/api/transaction", { method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ type: "withdraw", amount: amount, intent: "banker" })});
+            let data = await response.json();
+            window.location.href=data.genURL;
+            addHistory(`成功從 ${bankName} 帳號 ${account} 入帳 ${amount} 元`);
+            // 清空表單
+            document.getElementById('deposit-amount').value = '';
+            document.getElementById('account-number').value = '';
+        }
+
+        // 添加歷史記錄
+        function addHistory(message) {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.textContent = message;
+            document.getElementById('transaction-history').prepend(historyItem);
+        }
+
+        // 初始化遊戲
+        window.onload = initGame;
+    </script>
+</body>
+</html>
